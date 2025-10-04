@@ -60,9 +60,9 @@ VI. Next we will create the Workload Host using splatting method in the PowerShe
 
 
 VII. We need to create a network interface Card (NIC) for the workload host. 
-1. Get the workload subnet into a variable
+a. Get the workload subnet into a variable
 ###### $Wrkld_sub = Get-AzVirtualNetworkSubnetConfig -Name Workload-Subnet -VirtualNetwork $Lab_VN
-2. Creat the NCI
+b. Creat the NCI
 ###### $NIC01 = New-AzNetworkInterface -ResourceGroupName Lab-Resources -Name Workload-NI -Subnet $Wrkld_sub -Location eastus 
 
 
