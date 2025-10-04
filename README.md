@@ -37,23 +37,37 @@ I. The first thing to create before creating the virtual network is a resource g
 
 II. The next step is to create the Virtual Network and subnets. In order to do this, we would first define our three subnets and store them into the PowerShell variable as shown in the code below. (Beware of the special subnet name for Bastion and Firewall subnets).
 
+###### $Bastion = New-AzVirtualNetworkSubnetConfig -Name AzureBastionSubnet -AddressPrefix 10.0.0.0/27
+###### $FW_Subnet = New-AzVirtualNetworkSubnetConfig -Name AzureFirewallSubnet -AddressPrefix 10.0.0.0/26
+###### $Workload_Subnet = New-AzVirtualNetworkSubnetConfig -Name Workload-Subnet -AddressPrefix 10.0.0.0/24
 
 III. Creating a virtual Network using the established subnets
+###### $Lab_VN = New-AzVirtualNetwork -Name Lab-VN -ResourceGroupName Lab-Resources -Location "East US" -AddressPrefix 10.0.0.0/16 -Subnet $Bastion, $FW_Subnet, $Workload_Subnet
 
 
-IV. We need to create a host for the Bastion resource but we will first create a public IP (PIP) for the Azure Bastion host because it is an internet facing resource.
+IV. We need to create a host for the Bastion resource but we will first create a public IP (PIP) for the Azure Bastion host because it is an internet facing resource (The essence of Azure Bastion is to provide a secure, managed, and seamless way to access virtual machines (VMs) in Azure, dramatically reducing your security exposure. Think of Azure Bastion as a managed Jump Box or Jump Server service provided by Microsoft).
+
+###### $Public_Ip = New-AzPublicIpAddress -ResourceGroupName Lab-Resources -Loaction eastus -Name Bastion-pip -AllocationMethod static -SKU standard 
 
 
 V. The Bastion will now be created using the created PIP
-
+###### New-AzBastion -ResourceGroupName Lab-Resources -Name Bastion-001 -VirtualNetwork $Lab_VN -PublicIpAddress $Public_Ip
 
 VI. Next we will create the Workload Host using splatting method in the PowerShell to define multiple attributes of the VM
+###### $vm_params =@{ ResourceGroupName = "Lab-Resources" Location = "East US" VirtualNetworkName = "Lab-VN" SubnetName = "Workload-Subnet" Name = "Workload-VM" Image = "Win2016Datacenter" Size = "Standard_D2s_v3"}
+
+###### $workload_vm = New-AzVM @vm_params
 
 
-VII. We need to create a network interface Card (NIC) for the workload host
+VII. We need to create a network interface Card (NIC) for the workload host. 
+1. Get the workload subnet into a variable
+###### $Wrkld_sub = Get-AzVirtualNetworkSubnetConfig -Name Workload-Subnet -VirtualNetwork $Lab_VN
+2. Creat the NCI
+###### $NIC01 = New-AzNetworkInterface -ResourceGroupName Lab-Resources -Name Workload-NI -Subnet $Wrkld_sub -Location eastus 
 
 
 VIII. After creating the network interface card for the workload host, it is important to add the NIC to the host.
+###### Add-AzVMNetworkInterface -VM $workload_vm -Id $NIC01.Id
 
 
 2. Deploy a Firewall.
