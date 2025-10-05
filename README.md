@@ -69,10 +69,13 @@ b. Creat the NCI
 VIII. After creating the network interface card for the workload host, it is important to add the NIC to the host.
 ###### Add-AzVMNetworkInterface -VM $workload_vm -Id $NIC01.Id
 
+##### Deploy a Firewall.
+###### In this lab, we are deploying a firewall to control the outbound traffic (egress). An outbound traffic is the traffic leaving our created network to the internet. Before the irewall is deployed, it is ideal to create a Public IP Address for the firewall as it is where all the outbound traffic from the network would be routed to the internet.
+I. Create a Public IP address for the Firewall
+###### $FW_PIP = New-AzPublicIpAddress -Name Firewall-pip -ResourceGroupName Lab-Resources -Location eastus -AllocationMethod Static -Sku Standard 
 
-2. Deploy a Firewall.
-
-In this lab, we are deploying a firewall to control the outbound traffic. An outbound traffic is the traffic leaving our created network to the internet. It is ideal to create a Public IP Address for the firewall as it is where all the outbound traffic from the network would be routed to the internet.
+II. Deploy the Firewall 
+###### $AzFW = New-AzFirewall -Name Firewall01 -ResourceGroupName Lab-Resources -Location eastus -VirtualNetwork $Lab_VN -PublicIpAddress $FW_PIP
 
 Press enter or click to view image in full size
 
