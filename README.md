@@ -77,24 +77,24 @@ I. Create a Public IP address for the Firewall
 II. Deploy the Firewall 
 ###### $AzFW = New-AzFirewall -Name Firewall01 -ResourceGroupName Lab-Resources -Location eastus -VirtualNetwork $Lab_VN -PublicIpAddress $FW_PIP
 
-Press enter or click to view image in full size
-
-3. For us to create a default route, we need to create a route table, create a route and associate the routable to a subnet
+###### To create a custom route that defines a default route, we need to create a route table, create a deafault route and associate the rout table to a subnet
 
 I. Create a route table
+###### $routeTableDG = New-AzRouteTable -Name Firewall-route-table -ResourceGroupName Lab-Resources -Location eastus -DisableBgpRoutePropagation 
 
+II. Now that a route table has been created, we need to configure a default route. Before confiuring a default route, we need to get the Private IP Address of the Firewall. This will be used as the NextHopIPAddress in the route.
+###### $FW_PVIP = $AzFW.IpConfigurations.PrivateIpAddress
 
-II. Now that a route table has been created, we need to create a route. Before we create a route, we need to get the Private IP Address of the Firewall. This will be used as the NextHopIPAddress in the route.
+III. Configure a default route (Its a default route based on the address prefix)
+###### Add-RouteConfig -Name "DGRoute" -RouteTable $routeTableDG -AddressPrefix 0.0.0.0/0 -NextHopType "VirtualAppliance" -NextHopIpAddress $FW_PVIP  | set-AzRouteTable 
 
+III. Associate the route table to the appropriate subnet which is the workload subnet.
+###### Set-AzVirtualNetworkSubnetConfig -VirtualNetwork $Lab_VN -Name Workload-Subnet -AddressPrefix 10.0.0.0/24 -RouteTable $routeTableDG | Set-AzVirtualNetwork
 
-Getting the Private IP Address of the AzureFirewall
+###### Configure the Firewall Application Rule. It is important to note that the Application rule allows or deny outbound traffic based on OSI model Layer 7. It is used to filter traffic based on FQDN, URL, HTTP and HTTPS. In this lab, we want to allow outbounb to www.google.com from the workload server
 
-Creating a Route using the created RouteTable
-III. Now that we have created a route table and a route, it is time to associate the route table to the appropriate subnet which is the workload subnet.
-
-
-4. Configure the Firewall Application Rule. It is important to note that the Application rule allows or deny outbound traffic based on OSI model Layer 7. It is used to filter traffic based on FQDN, URL, HTTP and HTTPS.
-
+I. Define the Application rule 
+###### $AppRule1 = New-AzFirewallApplicateRule -Source 10.0.0.0/24 -protocol http, https -TargetFqdn www.google.com
 
 5. Configure the Firewall Network Rule. Network rule allows or deny inbound and outbound traffic based on the network layer (OSI model-layer3) and transport layer (OSI model-layer4). A network rule can be used to filter traffic based on IP address, any ports and any protocols. In this scenario, we want to allow a UDP protocol from the workload subnet to the Network Interface DNS Address.
 
