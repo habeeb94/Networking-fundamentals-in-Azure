@@ -94,9 +94,26 @@ III. Associate the route table to the appropriate subnet which is the workload s
 ###### Configure the Firewall Application Rule. It is important to note that the Application rule allows or deny outbound traffic based on OSI model Layer 7. It is used to filter traffic based on FQDN, URL, HTTP and HTTPS. In this lab, we want to allow outbounb to www.google.com from the workload server
 
 I. Define the Application rule 
-###### $AppRule1 = New-AzFirewallApplicateRule -Source 10.0.0.0/24 -protocol http, https -TargetFqdn www.google.com
+###### $AppRule1 = New-AzFirewallApplicationRule -SourceAddress 10.0.0.0/24 -protocol http, https -TargetFqdn www.google.com
 
-5. Configure the Firewall Network Rule. Network rule allows or deny inbound and outbound traffic based on the network layer (OSI model-layer3) and transport layer (OSI model-layer4). A network rule can be used to filter traffic based on IP address, any ports and any protocols. In this scenario, we want to allow a UDP protocol from the workload subnet to the Network Interface DNS Address.
+II. Define the Application rule collection (This is where to explicitly define and store the defined application rules)
+###### $AppRuleCollection = New-AzFirewallApplicationRuleCollection -Name App-collect-01 -Priority 200 -ActionType Allow -Rule $AppRule1
+
+III. Update the Azure Firewall that was previously deployed with the newly created Application rule 
+###### $AzFW.ApplicationRuleCollection.Add($AppRuleCollection)
+###### Set-AzFirewall -AzureFirewall $AzFW
+
+###### Configure the Firewall Network Rule. Network rule allows or deny inbound and outbound traffic based on the network layer (OSI model-layer3) and transport layer (OSI model-layer4). A network rule can be used to filter traffic based on IP address, any ports and any protocols. In this scenario, we want to allow a UDP protocol from the workload subnet to the Network Interface DNS Address.
+
+I. Define the Network rule 
+###### $AppRule1 = New-AzFirewallNetworkRule -Name Allow-DNS -SourceAddress 209.244.0.3 209.244.0.4 -DestinationAddress -protocol http, https -TargetFqdn www.google.com
+
+II. Define the Application rule collection (This is where to explicitly define and store the defined application rules)
+###### $AppRuleCollection = New-AzFirewallApplicationRuleCollection -Name App-collect-01 -Priority 200 -ActionType Allow -Rule $AppRule1
+
+III. Update the Azure Firewall that was previously deployed with the newly created Application rule 
+###### $AzFW.ApplicationRuleCollection.Add($AppRuleCollection)
+###### Set-AzFirewall -AzureFirewall $AzFW
 
 
 · For testing purposes, we need to configure the DNS Server of the Network Interface Card (NIC) to the Destination address used in the Network Rule
