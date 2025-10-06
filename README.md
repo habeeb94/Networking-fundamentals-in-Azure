@@ -15,10 +15,8 @@
 6. Test the Firewall
 
 7. Cleanup Resources
-Setting up a network environment in Azure with PowerShell
 
-
-##### To communicate with Azure subscription with Powershell Deskop for the first time, use the following steps:
+##### To communicate with Azure subscription with Powershell Desktop for the first time, use the following steps:
 1. Open Powershell Desktop as Administrator
 2. Set the Execution Policy (if you haven't already) to allow scripts to run using the code:
 ###### Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
