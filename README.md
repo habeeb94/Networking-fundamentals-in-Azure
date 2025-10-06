@@ -1,6 +1,6 @@
 # Networking-fundamentals-in-Azure
 ## How to Set-Up a Network Environment and Create a Firewall in Azure Using PowerShell
-### In this lab, we will be go through the following steps:
+### In this lab, we will go through the following steps:
 
 1. Setting up a network environment in Azure with PowerShell
 
