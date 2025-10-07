@@ -23,7 +23,7 @@
 3. Install the AZ module from the Powershell gallery:
 ###### Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force
 4. Connect interactively to your Azure account using:
-###### Connect to Your Azure Account
+###### Connect-AzAccount
 
 
 ### Network Environment
